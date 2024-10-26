@@ -1,0 +1,19 @@
+{
+  "name": "elmer.ai",
+  "version": "1.0.0",
+  "description": "A LLM based HAM Radio AI",
+  "main": "app.js",
+  "scripts": {
+    "test": "node app.js",
+    "start": "node app.js"
+  },
+  "author": "Roger Hernandez",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "gpt4all": "^4.0.0",
+    "xml2js": "^0.6.2"
+  }
+}

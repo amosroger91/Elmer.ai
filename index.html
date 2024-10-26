@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elmer.AI</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Background gradient */
+        body {
+            padding: 20px;
+            background: linear-gradient(135deg, #1e3c72, #2a5298, #63a4ff);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Centered container */
+        .container {
+            text-align: center;
+            max-width: 500px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .response {
+            margin-top: 20px;
+        }
+
+        /* Loading spinner */
+        .spinner-border {
+            display: none;
+            width: 2rem;
+            height: 2rem;
+            color: #ffffff;
+        }
+
+        /* Gradient button with black text */
+        #getLocationBtn {
+            background: linear-gradient(135deg, #1e3c72, #2a5298, #63a4ff);
+            color: white;
+            border: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Elmer.AI</h1>
+    <h3 id="loadingText" >Which band is best given the current conditions?</h3>
+    <hr />
+    <div class="text-center">
+        <button id="getLocationBtn" class="btn btn-primary">Get My Location Data</button>
+    </div>
+    <div id="loadingSpinner" class="d-flex justify-content-center mt-3" role="status">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <div class="response" id="response">
+        <!-- Response will be displayed here -->
+    </div>
+</div>
+
+<!-- jQuery and Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#getLocationBtn').click(function() {
+            // Hide the button and show the spinner
+             document.getElementById("loadingText").innerText = "Loading..."
+            $(this).hide();
+            $('#loadingSpinner').show();
+
+            // Check if Geolocation is available
+            if (navigator.geolocation) {
+                // Request the user's location
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    
+                    // Make API request to your endpoint with latitude and longitude
+                    fetch(`/location?latitude=${latitude}&longitude=${longitude}`)
+                        .then(response => {
+                             document.getElementById("loadingText").innerText = "Which band is best given the current conditions?"
+                            if (!response.ok) {
+                                throw new Error("Network response was not ok");
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            // Display the response data in the HTML
+                            $('#response').html(`<p>${data.content}</p>`);
+                        })
+                        .catch(error => {
+                            $('#response').html(`<div class="alert alert-danger">${error.message}</div>`);
+                        })
+                        .finally(() => {
+                            // Hide spinner when the data has been fetched
+                            $('#loadingSpinner').hide();
+                        });
+                }, function(error) {
+                    $('#response').html(`<div class="alert alert-danger">Unable to retrieve location: ${error.message}</div>`);
+                    $('#loadingSpinner').hide();
+                    $('#getLocationBtn').show(); // Show the button if error occurs
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+                $('#loadingSpinner').hide();
+                $('#getLocationBtn').show(); // Show the button if geolocation not supported
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
