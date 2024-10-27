@@ -7,17 +7,30 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        /* Background gradient */
         body {
             padding: 20px;
             background: linear-gradient(135deg, #1e3c72, #2a5298, #63a4ff);
+            background-size: 300% 300%; /* Enlarged background for wave effect */
             color: #ffffff;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-        }
+            animation: waveGradient 5s ease-in-out forwards;
+          }
+      
+          @keyframes waveGradient {
+            0% {
+              background-position: 0% 50%;
+            }
+            50% {
+              background-position: 100% 50%; /* Move gradient fully across */
+            }
+            100% {
+              background-position: 0% 50%; /* Return to original position */
+            }
+          }
 
         /* Centered container */
         .container {
@@ -48,6 +61,10 @@
             border: none;
             font-weight: bold;
         }
+
+        .top-10{
+            margin-top:10px
+        }
     </style>
 </head>
 <body>
@@ -55,13 +72,12 @@
 <div class="container">
     <h1>Elmer.AI</h1>
     <h3 id="loadingText" >Which band is best given the current conditions?</h3>
-    <hr />
     <div class="text-center">
-        <button id="getLocationBtn" class="btn btn-primary">Get My Location Data</button>
+        <button id="getLocationBtn" class="btn btn-primary top-10">Get My Location Data</button>
     </div>
     <div id="loadingSpinner" class="d-flex justify-content-center mt-3" role="status">
         <div class="spinner-border" role="status">
-            <span class="sr-only">Loading...</span>
+            <span class="sr-only">Checking Conditions...</span>
         </div>
     </div>
     <div class="response" id="response">
@@ -75,6 +91,10 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
+    document.body.addEventListener('animationend', () => {
+        document.body.style.animation = 'none';
+      });
+
     $(document).ready(function() {
         $('#getLocationBtn').click(function() {
             // Hide the button and show the spinner
@@ -93,7 +113,7 @@
                     // Make API request to your endpoint with latitude and longitude
                     fetch(`/location?latitude=${latitude}&longitude=${longitude}`)
                         .then(response => {
-                             document.getElementById("loadingText").innerText = "Which band is best given the current conditions?"
+                             document.getElementById("loadingText").innerText = ""
                             if (!response.ok) {
                                 throw new Error("Network response was not ok");
                             }

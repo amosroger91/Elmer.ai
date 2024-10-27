@@ -2,6 +2,7 @@
 const express = require('express');
 const axios = require('axios');
 const xml2js = require('xml2js');
+const cache = require('express-cache-controller');
 require('dotenv').config();
 
 //weatherbit api process env imports
@@ -15,6 +16,9 @@ const MODEL_FILE = "q4_0-orca-mini-3b.gguf"; // Fixed model file
 //express web server config
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Cache all responses for 100 seconds
+app.use(cache({ maxAge: 86400 }));
 
 // Function to convert Celsius to Fahrenheit
 function celsiusToFahrenheit(celsius) {
@@ -30,14 +34,13 @@ async function getBestHamRadioBands(prompt, callback) {
     // Load the model
     const model = await loadModel(MODEL_FILE, {
         device: 'cpu', // Or 'gpu' if available
-        nCtx: 1024,    // Reduce context to 1024 for faster processing
+        nCtx: 1500,    // Reduce context to 1024 for faster processing
         ngl: 80        // Slightly reduce no-gradient layers for performance gain
     });
 
     // Create a chat session
     const chat = await model.createChatSession({
         temperature: 0.8,
-        systemPrompt: "### System:\nYou are an advanced HAM Radio Mentor (an Elmer as it's called in the hobby).\n\n (Give an HF and a nonHF answer) Please give a short 1-2 sentence summary of the best band to use so that it could be displayed as a text on the home page of a 'what are the best ham radio bands to use right now' application. Please do not only give 1 band. I'm looking for an HF and a non HF band",
     });
 
     // Create a completion using the provided prompt
